@@ -26,7 +26,7 @@ export default class ParentComponent extends Component {
         // When search input changed, check if input empty/only contains spaces
         if(value !== "" && value.replace(/\s/g, '').length) {
             this.setState({ loading: true })
-            fetch(`http://www.omdbapi.com/?s=${value}*&apikey=c1de8374`)
+            fetch(`https://www.omdbapi.com/?s=${value}*&apikey=c1de8374`)
             .then(resp => resp.json())
             .then(response => {
                 if (response.Response === 'False') {
@@ -44,15 +44,15 @@ export default class ParentComponent extends Component {
                         if(this.state.nominations.includes(id)) movie["Nominated"] = true;
                         else movie["Nominated"] = false;
 
-                        fetch(`http://www.omdbapi.com/?i=${id}&apikey=c1de8374`)
+                        fetch(`https://www.omdbapi.com/?i=${id}&apikey=c1de8374`)
                         .then(resp => resp.json())
                         .then(res => {
                             if (res.Response === 'False') {
-                                movie["Runtime"] = "";
-                                movie["Genre"] = "";
-                                movie["Director"] = "";
-                                movie["Actors"] = "";
-                                movie["Awards"] = "";
+                                movie["Runtime"] = "N/A";
+                                movie["Genre"] = "N/A";
+                                movie["Director"] = "N/A";
+                                movie["Actors"] = "N/A";
+                                movie["Awards"] = "N/A";
                             }
                             else {
                                 movie["Runtime"] = res.Runtime;
@@ -63,13 +63,33 @@ export default class ParentComponent extends Component {
                             }
                             movies.push(movie);
                             this.setState({
-                                results: movies,
-                                loading: false,
-                                error: false
+                                results: movies
+                            })
+                        })
+                        .catch(() => {
+                            movie["Runtime"] = "N/A";
+                            movie["Genre"] = "N/A";
+                            movie["Director"] = "N/A";
+                            movie["Actors"] = "N/A";
+                            movie["Awards"] = "N/A";
+                            movies.push(movie);
+                            this.setState({
+                                results: movies
                             })
                         })
                     });
+                    this.setState({
+                        loading: false,
+                        error: false
+                    })
                 }
+            })
+            .catch(() => {
+                this.setState({
+                    movies: [],
+                    loading: false,
+                    error: true
+                })
             })
         }
         else {
@@ -140,11 +160,11 @@ export default class ParentComponent extends Component {
                             {this.state.results[i].Title} ({this.state.results[i].Year})
                         </div>
                         <div className="movie-desc-card">
-                            Runtime: {this.state.results[i].Runtime}<br/>
-                            Genre: {this.state.results[i].Genre}<br/>
-                            Director: {this.state.results[i].Director}<br/>
-                            Actors: {this.state.results[i].Actors}<br />
-                            Awards: {this.state.results[i].Awards}
+                            {this.state.results[i].Runtime !== "N/A" ? <div>Runtime: {this.state.results[i].Runtime}<br/></div> : null}
+                            {this.state.results[i].Genre !== "N/A" ? <div>Genre: {this.state.results[i].Genre}<br/></div> : null}
+                            {this.state.results[i].Director !== "N/A" ? <div>Director: {this.state.results[i].Director}<br/></div> : null}
+                            {this.state.results[i].Actors !== "N/A" ? <div>Runtime: {this.state.results[i].Actors}<br/></div> : null}
+                            {this.state.results[i].Awards !== "N/A" ? <div>Runtime: {this.state.results[i].Awards}<br/></div> : null}
                         </div>
                         
                         { nominated ? 
