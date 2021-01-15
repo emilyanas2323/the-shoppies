@@ -8,10 +8,12 @@ export default class ParentComponent extends Component {
     constructor(props) {
         super(props);
 
+        this.searchMovies = this.searchMovies.bind(this);
         this.getMovies = this.getMovies.bind(this);
         this.getNominations = this.getNominations.bind(this);
         this.nominateMovie = this.nominateMovie.bind(this);
         this.removeNomination = this.removeNomination.bind(this);
+        this.searchClicked = this.searchClicked.bind(this);
 
         this.state = {
             results: [],
@@ -21,80 +23,97 @@ export default class ParentComponent extends Component {
         };
     }
 
-    handleChange = (e) => {
-        let value = e.target.value;
-        // When search input changed, check if input empty/only contains spaces
-        if(value !== "" && value.replace(/\s/g, '').length) {
-            this.setState({ loading: true })
-            fetch(`https://www.omdbapi.com/?s=${value}*&apikey=c1de8374`)
-            .then(resp => resp.json())
-            .then(response => {
-                if (response.Response === 'False') {
-                    console.log(response.Error);
-                    this.setState({
-                        results: [],
-                        loading: false,
-                        error: true
-                    })
-                }
-                else {
-                    let movies = [];
-                    response.Search.forEach(movie => {
-                        const id = movie["imdbID"];
-                        if(this.state.nominations.includes(id)) movie["Nominated"] = true;
-                        else movie["Nominated"] = false;
-
-                        fetch(`https://www.omdbapi.com/?i=${id}&apikey=c1de8374`)
-                        .then(resp => resp.json())
-                        .then(res => {
-                            if (res.Response === 'False') {
-                                movie["Runtime"] = "N/A";
-                                movie["Genre"] = "N/A";
-                                movie["Director"] = "N/A";
-                                movie["Actors"] = "N/A";
-                                movie["Awards"] = "N/A";
-                            }
-                            else {
-                                movie["Runtime"] = res.Runtime;
-                                movie["Genre"] = res.Genre;
-                                movie["Director"] = res.Director;
-                                movie["Actors"] = res.Actors;
-                                movie["Awards"] = res.Awards;
-                            }
-                            movies.push(movie);
-                            this.setState({
-                                results: movies
-                            })
-                        })
-                        .catch(() => {
-                            movie["Runtime"] = "N/A";
-                            movie["Genre"] = "N/A";
-                            movie["Director"] = "N/A";
-                            movie["Actors"] = "N/A";
-                            movie["Awards"] = "N/A";
-                            movies.push(movie);
-                            this.setState({
-                                results: movies
-                            })
-                        })
-                    });
-                    this.setState({
-                        loading: false,
-                        error: false
-                    })
-                }
+    async searchMovies(value) {
+        if(value === "" || value === " ") {
+            this.setState({ 
+                error: false,
+                loading: false,
+                results: []
             })
-            .catch(() => {
+            return;
+        }
+
+        this.setState({ loading: true })
+        if(value[value.length-1] === ' ') value = value.substring(0, value.length - 1);
+        value = value.split(' ').join('+');
+        
+        try {
+            const search = await fetch(`https://www.omdbapi.com/?s=${value}*&apikey=c1de8374`);
+            const response = await search.json();
+            console.log(response)
+
+            if (response.Response === 'False') {
+                console.log(response.Error);
                 this.setState({
-                    movies: [],
+                    results: [],
                     loading: false,
                     error: true
                 })
+                return;
+            }
+            
+            let movies = [];
+            response.Search.forEach(async (movie) => {
+                const id = movie["imdbID"];
+                if(this.state.nominations.includes(id)) movie["Nominated"] = true;
+                else movie["Nominated"] = false;
+
+                try {
+                    const details = await fetch(`https://www.omdbapi.com/?i=${id}&apikey=c1de8374`);
+                    const res = await details.json();
+
+                    if (res.Response === 'False') {
+                        movie["Runtime"] = "N/A";
+                        movie["Genre"] = "N/A";
+                        movie["Director"] = "N/A";
+                        movie["Actors"] = "N/A";
+                        movie["Awards"] = "N/A";
+                    }
+                    else {
+                        movie["Runtime"] = res.Runtime;
+                        movie["Genre"] = res.Genre;
+                        movie["Director"] = res.Director;
+                        movie["Actors"] = res.Actors;
+                        movie["Awards"] = res.Awards;
+                    }
+                    movies.push(movie);
+
+                } catch (e) {
+                    movie["Runtime"] = "N/A";
+                    movie["Genre"] = "N/A";
+                    movie["Director"] = "N/A";
+                    movie["Actors"] = "N/A";
+                    movie["Awards"] = "N/A";
+                    movies.push(movie);
+
+                } finally {
+                    if(movies.length === response.Search.length) {
+                        this.setState({
+                            loading: false,
+                            error: false,
+                            results: movies
+                        })
+                    }
+                }
+            });
+
+        } catch (e) {
+            this.setState({
+                results: [],
+                loading: false,
+                error: true
             })
         }
-        else {
-            this.setState({ error: false })
+    }
+
+    handleChange = (e) => {
+        if (e.key === 'Enter') {
+            this.searchMovies(e.target.value);
         }
+    }
+
+    searchClicked() {
+        this.searchMovies(document.getElementById("search-value").value);
     }
 
     nominateMovie(movie) {
@@ -110,7 +129,7 @@ export default class ParentComponent extends Component {
                 progress: undefined,
                 });
         }
-        else if(this.state.nominations.filter(item => item.id === movie["imdbID"]).length == 0) {
+        else if(!this.state.nominations.includes(movie.id)) {
             let nominated = this.state.nominations;
             nominated.push({
                 id: movie["imdbID"],
@@ -151,7 +170,7 @@ export default class ParentComponent extends Component {
 
         let movies = [];
         for(let i = 0; i<this.state.results.length; i++) {
-            let nominated = this.state.nominations.filter(e => e.id === this.state.results[i]["imdbID"]).length === 0;
+            let nominated = this.state.nominations.filter(e => e.id === this.state.results[i]["imdbID"]).length > 0;
             movies.push(
                 <div key={i} className="movie-card d-flex align-items-center">
                     {this.state.results[i].Poster !== "N/A" ? <img src={this.state.results[i].Poster} className="movie-poster" alt={"Movie Poster of "+this.state.results[i].Title} /> : null}
@@ -168,8 +187,8 @@ export default class ParentComponent extends Component {
                         </div>
                         
                         { nominated ? 
-                            <div className={"movie-btn-card"} onClick={() => this.nominateMovie(this.state.results[i])}>Nominate</div> :
-                            <div className={"movie-btn-card movie-btn-card-nom"}>Nominated</div>
+                            <div className={"movie-btn-card movie-btn-card-nom"}>Nominated</div> :
+                            <div className={"movie-btn-card"} onClick={() => this.nominateMovie(this.state.results[i])}>Nominate</div>
                         }
                     </div>
                 </div>
@@ -205,7 +224,10 @@ export default class ParentComponent extends Component {
                     <div id="header" className="text-center">
                         <div id="title">The Shoppies</div>
                         <div id="desc">Movie awards for entrepreneurs. Select 5 films that you would like to nominate.</div>
-                        <input type="text" placeholder="Movie Title..." onChange={this.handleChange} />
+                        <div className="d-flex justify-content-center align-items-center search-flex">
+                            <input type="text" id="search-value" placeholder="Movie Title..." onKeyDown={this.handleChange} />
+                            <img src="search-icon.png" class="search-icon" onClick={this.searchClicked} alt="Search Button" />
+                        </div>
                     </div>
                     <div id="results" className="flex-grow-1">
                         { this.state.loading ? <div className="text-center spinner"><Spin size="large" /></div> : this.getMovies() }

@@ -2,6 +2,7 @@
 
 body {
   font-family: 'Open Sans', sans-serif;
+  overflow-y: scroll;
 }
 
 #app {
@@ -27,14 +28,18 @@ body {
   font-size: 18px;
 }
 
+.search-flex {
+  margin: 35px 0;
+  width: calc(100vw - 275px);
+}
+
 input[type=text] {
   border: 1px solid #DADADA;
   border-radius: 25px;
-  width: 90%;
+  width: 87%;
   color: #A4A4A4;
   padding: 0 15px;
   height: 30px;
-  margin: 35px 0;
   outline: none;
 }
 
@@ -55,8 +60,16 @@ input[type=text]:hover {
   border: 1px solid #b5b5b5;
 }
 
-input[type=text]:focus {
-  border: 1px solid #b5b5b5;
+.search-icon {
+  height: 32px;
+  width: 32px;
+  opacity: 0.5;
+  margin-left: 13px;
+  cursor: pointer;
+  /* background-color: #d5d5d5; */
+  border: 1px solid #cacaca;
+  padding: 5px;
+  border-radius: 8px;
 }
 
 
@@ -189,7 +202,7 @@ input[type=text]:focus {
 
 .nomination-poster.nomination-no-poster {
   height: 150px;
-  padding-top: 25%;
+  padding-top: 20px;
   background-color: rgb(189, 189, 189);
 }
 
