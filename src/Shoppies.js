@@ -26,8 +26,7 @@ export default class ParentComponent extends Component {
         // When search input changed, check if input empty/only contains spaces
         if(value !== "" && value.replace(/\s/g, '').length) {
             this.setState({ loading: true })
-            const key = process.env.key;
-            fetch(`http://www.omdbapi.com/?s=${value}*&apikey=${key}`)
+            fetch(`http://www.omdbapi.com/?s=${value}*&apikey=c1de8374`)
             .then(resp => resp.json())
             .then(response => {
                 if (response.Response === 'False') {
@@ -45,7 +44,7 @@ export default class ParentComponent extends Component {
                         if(this.state.nominations.includes(id)) movie["Nominated"] = true;
                         else movie["Nominated"] = false;
 
-                        fetch(`http://www.omdbapi.com/?i=${id}&apikey=${key}`)
+                        fetch(`http://www.omdbapi.com/?i=${id}&apikey=c1de8374`)
                         .then(resp => resp.json())
                         .then(res => {
                             if (res.Response === 'False') {
