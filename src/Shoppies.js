@@ -182,8 +182,8 @@ export default class ParentComponent extends Component {
                             {this.state.results[i].Runtime !== "N/A" ? <div>Runtime: {this.state.results[i].Runtime}<br/></div> : null}
                             {this.state.results[i].Genre !== "N/A" ? <div>Genre: {this.state.results[i].Genre}<br/></div> : null}
                             {this.state.results[i].Director !== "N/A" ? <div>Director: {this.state.results[i].Director}<br/></div> : null}
-                            {this.state.results[i].Actors !== "N/A" ? <div>Runtime: {this.state.results[i].Actors}<br/></div> : null}
-                            {this.state.results[i].Awards !== "N/A" ? <div>Runtime: {this.state.results[i].Awards}<br/></div> : null}
+                            {this.state.results[i].Actors !== "N/A" ? <div>Actors: {this.state.results[i].Actors}<br/></div> : null}
+                            {this.state.results[i].Awards !== "N/A" ? <div>Awards: {this.state.results[i].Awards}<br/></div> : null}
                         </div>
                         
                         { nominated ? 
