@@ -1,3 +1,11 @@
+# Live Demo
+
+The project is hosted at https://the-shoppies-project.herokuapp.com/.
+
+# Design choices & Extras
+
+I had a lot of fun creating a new design for the app! I decided to add a loading animation whenever someone searches up a movie, and a banner pops up if the user tries to nominate more than 5 movies. I also decided to only show the first 10 movie results, since the search can always be narrowed down to be more specific. If I were to improve this app, I would add pagination for the search results, and add a general poster for movies that don't have one instead of displaying a gray background in the nominations sidebar. 
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
