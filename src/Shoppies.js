@@ -40,10 +40,8 @@ export default class ParentComponent extends Component {
         try {
             const search = await fetch(`https://www.omdbapi.com/?s=${value}*&apikey=c1de8374`);
             const response = await search.json();
-            console.log(response)
 
             if (response.Response === 'False') {
-                console.log(response.Error);
                 this.setState({
                     results: [],
                     loading: false,
@@ -226,7 +224,7 @@ export default class ParentComponent extends Component {
                         <div id="desc">Movie awards for entrepreneurs. Select 5 films that you would like to nominate.</div>
                         <div className="d-flex justify-content-center align-items-center search-flex">
                             <input type="text" id="search-value" placeholder="Movie Title..." onKeyDown={this.handleChange} />
-                            <img src="search-icon.png" class="search-icon" onClick={this.searchClicked} alt="Search Button" />
+                            <img src="search-icon.png" className="search-icon" onClick={this.searchClicked} alt="Search Button" />
                         </div>
                     </div>
                     <div id="results" className="flex-grow-1">
